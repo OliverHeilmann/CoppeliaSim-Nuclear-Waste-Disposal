@@ -2,7 +2,6 @@
 function uiSetup()
     xml = '<ui title="Robot Arm Control" closeable="false" resizeable="true" activate="false">' .. [[
                     <button text="Print Joint Angles" on-click="printJointAngles" id="1"/>
-                    <button text="Print Target State" on-click="printTargetPosition" id="2"/>
                     <button text="Open Gripper" on-click="actuateGripper" id="1001" />
                     <button text="Close Gripper" on-click="actuateGripper" id="1002" />
                     <label text="" style="* {margin-left: 200px;}"/>        
@@ -12,48 +11,10 @@ function uiSetup()
     uii=simUI.create(xml)
 end
 
--- Print joint angles into console window
-function printJointAngles()
-    local jointHandles={}
-    for i=1,6,1 do
-        jointHandles[i]=sim.getObjectHandle('NiryoOneJoint'..i)
-    end
-
-    local currentConf={}
-    for i=1,#jointHandles,1 do
-        currentConf[i]=sim.getJointPosition(jointHandles[i])
-    end
-    print(currentConf)
-end
-
--- Print Target position in console window
-function printTargetPosition()
-    target = sim.getObjectHandle("nodeIK_obj#0") -- CHANGE FOR THE APPROPRIATE TARGET!
-    
-    -- get position and orientation of target
-    pos = sim.getObjectPosition(target,-1)
-    orientation = sim.getObjectOrientation(target,-1)
-
-    -- print to console window
-    print(pos, orientation)
-end
-
--- Open/ Close Gripper
-function actuateGripper(ui, id)
-    if id == 1001 then
-        -- open gripper
-        sim.clearIntegerSignal(gripperName.. '_close')
-    else
-        -- close gripper
-        sim.setIntegerSignal(gripperName.. '_close', 1)
-    end
-end
-
--- Main thread
 function sysCall_init()
     -- Setup UI interactive boxes
     uiSetup()
-
+    
     -- Take a few handles from the scene:
     simBase=sim.getObjectHandle(sim.handle_self)
     simTip=sim.getObjectHandle('nodeIK_obj')
