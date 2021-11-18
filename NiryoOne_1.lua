@@ -1,7 +1,8 @@
 -- Create popup window with buttons
 function uiSetup()
-    xml = '<ui title="Robot Arm Control" closeable="false" resizeable="true" activate="false">' .. [[
+    xml = '<ui title="R1 Robot Arm Control" closeable="false" resizeable="true" activate="false">' .. [[
                     <button text="Print Joint Angles" on-click="printJointAngles" id="1"/>
+                    <button text="Print Target State" on-click="printTargetPosition" id="2"/>
                     <button text="Open Gripper" on-click="actuateGripper" id="1001" />
                     <button text="Close Gripper" on-click="actuateGripper" id="1002" />
                     <label text="" style="* {margin-left: 200px;}"/>        
@@ -14,14 +15,19 @@ end
 -- Messaging between Robots setup
 function messageSetup()
     -- Store global name of me
-    myname = sim.handle_self
+    myhandle = sim.getObjectHandle(sim.handle_self)
+    myname = sim.getObjectName(myhandle)
 
     -- Setup sending and recieving globally accessible messages
-    simSend = tostring(sim.getObjectHandle(myname)).."_Send"
-    simRecieve = tostring(sim.getObjectHandle(myname)) .. "_Recieve"
+    simSend = myname.."_CH1"
+    simRecieve = myname .."_CH2"
+
     -- Send messages on channels
     sim.setIntegerSignal(simSend,0)
     sim.setIntegerSignal(simRecieve,0)
+
+    -- Publish my name so others can access it
+    sim.setStringSignal("R1", sim.packTable({myname}))
     
     -- Print for debugging
     print("R1: " .. simSend)
@@ -33,7 +39,7 @@ function sysCall_init()
     corout=coroutine.create(coroutineMain)
 
     -- call UI box setup
-    --uiSetup()
+    uiSetup()
 
     -- call messaging setup
     messageSetup()
@@ -77,6 +83,18 @@ function printJointAngles()
     print(currentConf)
 end
 
+-- Print Target position in console window
+function printTargetPosition()
+    target = sim.getObjectHandle("nodeIK_obj") -- CHANGE FOR THE APPROPRIATE TARGET!
+    
+    -- get position and orientation of target
+    pos = sim.getObjectPosition(target,-1)
+    orientation = sim.getObjectOrientation(target,-1)
+
+    -- print to console window
+    print(pos, orientation)
+end
+
 -- Open/ Close Gripper
 function actuateGripper(ui, id)
     if id == 1001 then
@@ -110,8 +128,22 @@ end
 
 -- Main threaded function
 function coroutineMain()
+    ----------------------------------------------------------------
+    -- GET ALL OTHER ROBOT NAMES IN CHAIN
 
-    -- Set-up some of the RML vectors:
+    -- ensure final robot has finished making their reference name
+    sim.waitForSignal("R4")
+
+    -- get all robot names dynamically
+    robot_names = {}
+    sig_names = {"R1", "R2", "R3", "R4"}
+    for i=1, 4, 1 do
+        local theirName = sim.unpackTable( sim.getStringSignal(sig_names[i]) )
+        robot_names[i] = theirName[1]
+    end
+
+    ----------------------------------------------------------------
+    -- SETUP SOME OF THE RML VECTORS
     local vel=20
     local accel=40
     local jerk=80
@@ -155,7 +187,7 @@ function coroutineMain()
     -- WAITING FOR R2 TO GRAB ROD FROM R1, LETS GO WHEN R2 GRABBED
 
     -- wait for signal from R2 (wait for R2 to close gripper)
-    while (sim.getIntegerSignal("97_Send") ~= 1) do
+    while (sim.getIntegerSignal(robot_names[2].."_CH1") ~= 1) do
         sim.wait(0.25)
     end
 

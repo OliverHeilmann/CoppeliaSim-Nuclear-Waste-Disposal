@@ -1,6 +1,6 @@
 -- Create popup window with buttons
 function uiSetup()
-    xml = '<ui title="Robot Arm Control" closeable="false" resizeable="true" activate="false">' .. [[
+    xml = '<ui title="IK Robot Arm Control" closeable="false" resizeable="true" activate="false">' .. [[
                     <button text="Print Joint Angles" on-click="printJointAngles" id="1"/>
                     <button text="Print Target State" on-click="printTargetPosition" id="2"/>
                     <button text="Open Gripper" on-click="actuateGripper" id="1001" />
@@ -10,6 +10,42 @@ function uiSetup()
                     ]]
 
     uii=simUI.create(xml)
+end
+
+-- Messaging between Robots setup
+function messageSetup()
+    -- Store global name of me
+    myhandle = sim.getObjectHandle(sim.handle_self)
+    myname = sim.getObjectName(myhandle)
+
+    -- Setup sending and recieving globally accessible messages
+    simSend = myname.."_CH1"
+    simRecieve = myname .."_CH2"
+
+    -- Send messages on channels
+    sim.setIntegerSignal(simSend,0)
+    sim.setIntegerSignal(simRecieve,0)
+
+    -- Publish my name so others can access it
+    print("MAKE SURE TO SET THE IK SOLVER TO THE CORRECT ROBOT REFERENCE!!!!")
+    sim.setStringSignal("R3", sim.packTable({myname}))
+    
+    -- Print for debugging
+    print("IK: " .. simSend)
+    print("IK: " .. simRecieve)
+end
+
+-- add x,y,z,r,p,y values for reference to set starting point for IK
+function setReferencePos()
+    local xyz = {0.27893441915512, -1.0700641870499, 0.18312047421932}
+    local rpy = {-1.572373509407, 0.00046285989810713, -1.5690439939499}
+
+    -- Get handle of target to allow for changing state
+    target = sim.getObjectHandle("referenceIK_obj"..robotnum) -- CHANGE FOR THE APPROPRIATE TARGET!
+
+    -- change target state
+    sim.setObjectPosition(target, -1, xyz)
+    sim.setObjectOrientation(target, -1, rpy)
 end
 
 -- Print joint angles into console window
@@ -28,7 +64,7 @@ end
 
 -- Print Target position in console window
 function printTargetPosition()
-    target = sim.getObjectHandle("nodeIK_obj#0") -- CHANGE FOR THE APPROPRIATE TARGET!
+    target = sim.getObjectHandle("nodeIK_obj"..robotnum) -- CHANGE FOR THE APPROPRIATE TARGET!
     
     -- get position and orientation of target
     pos = sim.getObjectPosition(target,-1)
@@ -51,13 +87,22 @@ end
 
 -- Main thread
 function sysCall_init()
+    robotnum = "#1" --define robot number
+    -- ALSO CHANGE THE R1 TO THE NEW ONE!!!
+
     -- Setup UI interactive boxes
     uiSetup()
 
+    -- Setup messaging between robots
+    messageSetup()
+
+    -- Set a starting location for reference dummy
+    setReferencePos()
+
     -- Take a few handles from the scene:
     simBase=sim.getObjectHandle(sim.handle_self)
-    simTip=sim.getObjectHandle('nodeIK_obj')
-    simTarget=sim.getObjectHandle('referenceIK_obj')
+    simTip=sim.getObjectHandle('nodeIK_obj'..robotnum)
+    simTarget=sim.getObjectHandle('referenceIK_obj'..robotnum)
     
     ikEnv=simIK.createEnvironment()
     
@@ -107,7 +152,6 @@ end
 
 
 function sysCall_actuation()
-
     if simIK.applyIkEnvironmentToScene(ikEnv,ikGroup_undamped,true)~=simIK.result_success then
         simIK.applyIkEnvironmentToScene(ikEnv,ikGroup_damped)
     end

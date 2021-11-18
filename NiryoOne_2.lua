@@ -1,6 +1,6 @@
 -- Create popup window with buttons
 function uiSetup()
-    xml = '<ui title="Robot Arm Control" closeable="false" resizeable="true" activate="false">' .. [[
+    xml = '<ui title="R2 Robot Arm Control" closeable="false" resizeable="true" activate="false">' .. [[
                     <button text="Print Joint Angles" on-click="printJointAngles" id="1"/>
                     <button text="Print Target State" on-click="printTargetPosition" id="2"/>
                     <button text="Open Gripper" on-click="actuateGripper" id="1001" />
@@ -15,15 +15,19 @@ end
 -- Messaging between Robots setup
 function messageSetup()
     -- Store global name of me
-    myname = sim.handle_self
+    myhandle = sim.getObjectHandle(sim.handle_self)
+    myname = sim.getObjectName(myhandle)
 
     -- Setup sending and recieving globally accessible messages
-    simSend = tostring(sim.getObjectHandle(myname)).."_Send"
-    simRecieve = tostring(sim.getObjectHandle(myname)) .. "_Recieve"
+    simSend = myname.."_CH1"
+    simRecieve = myname .."_CH2"
 
     -- Send messages on channels
     sim.setIntegerSignal(simSend,0)
     sim.setIntegerSignal(simRecieve,0)
+
+    -- Publish my name so others can access it
+    sim.setStringSignal("R2", sim.packTable({myname}))
     
     -- Print for debugging
     print("R2: " .. simSend)
@@ -36,7 +40,7 @@ function sysCall_init()
     corout=coroutine.create(coroutineMain)
 
     -- call UI box setup
-    --uiSetup()
+    uiSetup()
 
     -- call messaging setup
     messageSetup()
@@ -125,19 +129,29 @@ end
 
 -- Main threaded function
 function coroutineMain()
+    ----------------------------------------------------------------
+    -- GET ALL OTHER ROBOT NAMES IN CHAIN
 
-    -- Set-up some of the RML vectors:
+    -- ensure final robot has finished making their reference name
+    sim.waitForSignal("R4")
+
+    -- get all robot names dynamically
+    robot_names = {}
+    sig_names = {"R1", "R2", "R3", "R4"}
+    for i=1, 4, 1 do
+        local theirName = sim.unpackTable( sim.getStringSignal(sig_names[i]) )
+        robot_names[i] = theirName[1]
+    end
+
+    ----------------------------------------------------------------
+    -- SETUP SOME OF THE RML VECTORS
     local vel=20
     local accel=40
     local jerk=80
     local maxVel={vel*math.pi/180,vel*math.pi/180,vel*math.pi/180,vel*math.pi/180,vel*math.pi/180,vel*math.pi/180}
     local maxAccel={accel*math.pi/180,accel*math.pi/180,accel*math.pi/180,accel*math.pi/180,accel*math.pi/180,accel*math.pi/180}
     local maxJerk={jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180}
-
-    -- ensure upchain robot has initiated its messaging service
-    sim.waitForSignal("41_Send")
     
-
     ----------------------------------------------------------------
     -- MOVE TO R1/R2 LOCATION, THEN GRAB ROD FROM R1
 
@@ -146,7 +160,7 @@ function coroutineMain()
     moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos0)
 
     -- Wait for signal from R1 (rod in place)
-    while (sim.getIntegerSignal("41_Send") ~= 1) do
+    while (sim.getIntegerSignal(robot_names[1].."_CH1") ~= 1) do
         sim.wait(0.25)
     end
     
@@ -169,8 +183,14 @@ function coroutineMain()
     local pos3 = {-2.055597782135, -0.49194490909576, 0.11541658639908, 8.5830688476562e-06, -1.1943854093552, 1.0860061645508}
     moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos3)
 
+    local pos4 = {-2.292445898056, -0.79580140113831, 0.58038860559464, -0.00023745000362396, -1.3571333885193, 0.8492077589035}
+    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos4)
+
+    -- tell R3 that R2 is in place
+    sim.setIntegerSignal(simRecieve,1) --chat on CH2
+
     -- Wait for signal from R1 (rod in place)
-    while (sim.getIntegerSignal("166_Send") ~= 1) do
+    while (sim.getIntegerSignal(robot_names[3].."_CH2") ~= 1) do
         sim.wait(0.25)
     end
 
