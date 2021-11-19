@@ -39,7 +39,7 @@ function sysCall_init()
     corout=coroutine.create(coroutineMain)
 
     -- call UI box setup
-    uiSetup()
+    --uiSetup()
 
     -- call messaging setup
     messageSetup()

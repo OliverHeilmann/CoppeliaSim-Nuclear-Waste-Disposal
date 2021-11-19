@@ -28,7 +28,7 @@ function messageSetup()
 
     -- Publish my name so others can access it
     print("MAKE SURE TO SET THE IK SOLVER TO THE CORRECT ROBOT REFERENCE!!!!")
-    sim.setStringSignal("R3", sim.packTable({myname}))
+    sim.setStringSignal("R4", sim.packTable({myname}))
     
     -- Print for debugging
     print("IK: " .. simSend)
@@ -37,8 +37,8 @@ end
 
 -- add x,y,z,r,p,y values for reference to set starting point for IK
 function setReferencePos()
-    local xyz = {0.27893441915512, -1.0700641870499, 0.18312047421932}
-    local rpy = {-1.572373509407, 0.00046285989810713, -1.5690439939499}
+    local xyz =  {-0.32062143087387, -1.6786051988602, 0.12903179228306}
+    local rpy = {1.5206459760666, -0.0026666834019125, -3.0948197841644}
 
     -- Get handle of target to allow for changing state
     target = sim.getObjectHandle("referenceIK_obj"..robotnum) -- CHANGE FOR THE APPROPRIATE TARGET!
@@ -87,7 +87,7 @@ end
 
 -- Main thread
 function sysCall_init()
-    robotnum = "#1" --define robot number
+    robotnum = "#2" --define robot number
     -- ALSO CHANGE THE R1 TO THE NEW ONE!!!
 
     -- Setup UI interactive boxes

@@ -40,7 +40,7 @@ function sysCall_init()
     corout=coroutine.create(coroutineMain)
 
     -- call UI box setup
-    uiSetup()
+    --uiSetup()
 
     -- call messaging setup
     messageSetup()
@@ -155,6 +155,10 @@ function coroutineMain()
     ----------------------------------------------------------------
     -- MOVE TO R1/R2 LOCATION, THEN GRAB ROD FROM R1
 
+    -- move away from wall
+    local pos = {0.018514279276133, 0.53788828849792, -0.89212203025818, 0.0064570941030979, -1.2166624069214, -0.00010122731328011}
+    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos)
+
     -- move to niryo 1
     local pos0 =  {-0.50411337614059, -0.61416971683502, 0.28874540328979, -1.6140213012695, -1.0551534891129, 0.30452990531921}
     moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos0)
@@ -176,15 +180,19 @@ function coroutineMain()
     ----------------------------------------------------------------
     -- R2 MOVES TO R3 TO TRANSFER ROD
 
-    -- move to niryoOne 2
-    local pos2 = {-1.6819672584534, -0.45044577121735, 0.055385649204254, -5.9355748817325e-05, -1.1760159730911, -1.2}
+    -- move away from wall safely
+    local pos2 = {-0.82792115211487, -0.071400940418243, -0.43170803785324, -1.9132986068726, -0.79814648628235, 0.58873349428177}
     moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos2)
 
-    local pos3 = {-2.055597782135, -0.49194490909576, 0.11541658639908, 8.5830688476562e-06, -1.1943854093552, 1.0860061645508}
+    -- move to niryoOne 2
+    local pos3 = {-1.6819672584534, -0.45044577121735, 0.055385649204254, -5.9355748817325e-05, -1.1760159730911, -1.2}
     moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos3)
 
-    local pos4 = {-2.292445898056, -0.79580140113831, 0.58038860559464, -0.00023745000362396, -1.3571333885193, 0.8492077589035}
+    local pos4 = {-2.055597782135, -0.49194490909576, 0.11541658639908, 8.5830688476562e-06, -1.1943854093552, 1.0860061645508}
     moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos4)
+
+    local pos5 = {-2.292445898056, -0.79580140113831, 0.58038860559464, -0.00023745000362396, -1.3571333885193, 0.8492077589035}
+    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos5)
 
     -- tell R3 that R2 is in place
     sim.setIntegerSignal(simRecieve,1) --chat on CH2
