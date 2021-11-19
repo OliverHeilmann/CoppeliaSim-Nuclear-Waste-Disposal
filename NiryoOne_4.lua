@@ -40,7 +40,7 @@ function sysCall_init()
     corout=coroutine.create(coroutineMain)
 
     -- call UI box setup
-    --uiSetup()
+    uiSetup()
 
     -- call messaging setup
     messageSetup()
@@ -181,10 +181,13 @@ function coroutineMain()
     local pos3 = {1.5256195068359, -0.64317941665649, -0.66680145263672, 3.0542986392975, -1.3046585321426, -1.5476306676865}
     moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos3)
 
-    local pos4 =  {3.0543246269226, -0.20374727249146, 0.072060823440552, 1.7344305515289, -1.5487805604935, 2.0097584724426}
+    local pos4 =  {3.054322719574, 0.086541354656219, -0.23199617862701, 1.8568181991577, -0.14869892597198, -1.925687789917}
     moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos4)
 
-   
+    --local pos5 = {-1.69868683815, -0.64544856548309, 1.0028569698334, -0.099651575088501, -1.7453370094299, -0.16341280937195}
+    --moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos5)
+
+
     sim.clearIntegerSignal(gripperName.. '_close') --open
     sim.wait(4)
 
