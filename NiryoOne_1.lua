@@ -39,7 +39,7 @@ function sysCall_init()
     corout=coroutine.create(coroutineMain)
 
     -- call UI box setup
-    --uiSetup()
+    uiSetup()
 
     -- call messaging setup
     messageSetup()
@@ -156,28 +156,32 @@ function coroutineMain()
     -- R1 TO THE ROD
 
     -- move to rod (macro movement)
-    local pos_OverCellsMacro = {0.0023124739527702, -0.42409363389015, 0.018077529966831, -4.0032842662185e-05, -1.16523873806, 0.0023059388622642}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos_OverCellsMacro)
+    local pos1 = {0.0023124739527702, -0.42409363389015, 0.018077529966831, -4.0032842662185e-05, -1.16523873806, 0.0023059388622642}
+    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos1)
     
     -- move to rod (micro movement)
-    local pos_OverCellsMicro = {0.0023129507899284, -0.50707757472992, -0.092169612646103, -3.5741308238357e-05, -0.97195827960968, 0.0023080846294761}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos_OverCellsMicro)
+    local pos2 = {0.0023129507899284, -0.50707757472992, -0.092169612646103, -3.5741308238357e-05, -0.97195827960968, 0.0023080846294761}
+    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos2)
     
     -- grab rod with gripper
     sim.setIntegerSignal(gripperName.. '_close', 1) --close
     sim.wait(5)
+
+    -- move to rod (macro movement)
+    local pos3 = {0.0023124739527702, -0.42409363389015, 0.018077529966831, -4.0032842662185e-05, -1.16523873806, 0.0023059388622642}
+    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos3)
     
-    -- move away from rod (back to macro movement: slower movement)
-    local pos_OverCellsMacro = {0.0023124739527702, -0.42409363389015, 0.018077529966831, -4.0032842662185e-05, -1.16523873806, 0.0023059388622642}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos_OverCellsMacro)
+    -- move away from rod matrix
+    local pos4 = {0.0022422843612731, -0.4016324877739, 0.7152601480484, 0.00019060660270043, -1.7453393936157, 0.0022931143175811}
+    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos4)
 
-    -- move to niryoOne 1
-    local pos_niryo1_A = {-1.7891311645508, -0.41722574830055, -0.032950282096863, -1.6671049594879, -1.3744693994522, -1.1116399765015}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos_niryo1_A)
+    -- move to niryoOne R2
+    local pos5 = {-1.7891311645508, -0.41722574830055, -0.032950282096863, -1.6671049594879, -1.3744693994522, -1.1116399765015}
+    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos5)
 
-    -- move to niryoOne 2
-    local pos_niryo1_B = {-2.0959885120392, -0.59904563426971, 0.23584520816803, -1.7741186618805, -1.0830663442612, -1.1563498973846}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos_niryo1_B)
+    -- move to niryoOne R2
+    local pos6 = {-2.0959885120392, -0.59904563426971, 0.23584520816803, -1.7741186618805, -1.0830663442612, -1.1563498973846}
+    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos6)
     
     -- tell R2 that R1 is in place
     sim.setIntegerSignal(simSend,1)
@@ -198,6 +202,6 @@ function coroutineMain()
     ----------------------------------------------------------------
     -- R1 IS NOW SAFE TO MOVE BACK TO STARTING AREA FOR NEXT ROD
 
-    -- move to rod (macro movement)
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos_OverCellsMacro)
+    -- move back to start, high above the rod matrix
+    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos4)
 end
