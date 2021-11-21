@@ -126,6 +126,17 @@ function moveToConfig(handles,maxVel,maxAccel,maxJerk,targetConf)
     sim.moveToConfig(-1,currentConf,nil,nil,maxVel,maxAccel,maxJerk,targetConf,nil,movCallback,handles)
 end
 
+-- Print Target position in console window
+function get_obj_state(target_name)
+    -- collect coordinates and pose
+    local target = sim.getObjectHandle(target_name)
+    local pos = sim.getObjectPosition(target,-1)
+    local orientation = sim.getObjectOrientation(target,-1)
+
+    -- print to console window
+    return pos, orientation
+end
+
 -- Main threaded function
 function coroutineMain()
     ----------------------------------------------------------------
@@ -140,7 +151,7 @@ function coroutineMain()
     for i=1, 4, 1 do
         local theirName = sim.unpackTable( sim.getStringSignal(sig_names[i]) )
         robot_names[i] = theirName[1]
-    end
+    end 
 
     ----------------------------------------------------------------
     -- SETUP SOME OF THE RML VECTORS
@@ -151,10 +162,9 @@ function coroutineMain()
     local maxAccel={accel*math.pi/180,accel*math.pi/180,accel*math.pi/180,accel*math.pi/180,accel*math.pi/180,accel*math.pi/180}
     local maxJerk={jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180}
 
-
     ----------------------------------------------------------------
     -- R1 TO THE ROD
-
+    
     -- move to rod (macro movement)
     local pos1 = {0.0023124739527702, -0.42409363389015, 0.018077529966831, -4.0032842662185e-05, -1.16523873806, 0.0023059388622642}
     moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos1)

@@ -11,3 +11,9 @@ Words to be added...
 1) Note: CoppeliaSim can import objects with textures but the textures MUST be as JPEG (or similar)
 2) Your files will be tif --> convert them to JPEG using [this!](https://cloudconvert.com/tif-to-jpg)
 3) Your Mat file will reference the old .tif file --> change it to .jpeg file instead.
+
+# Notes on Syntax
+use "" for referring to objects in self
+use '' for referring to objects not in self i.e. world objects
+
+consider ur5WithRg2Grasping demo scene

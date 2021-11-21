@@ -129,32 +129,32 @@ function sysCall_init()
     end
 end
 
+-- move Niryo to a define state based on input joint angles
+function movCallback(config,vel,accel,handles)
+    for i=1,#handles,1 do
+        if sim.getJointMode(handles[i])==sim.jointmode_force and sim.isDynamicallyEnabled(handles[i]) then
+            sim.setJointTargetPosition(handles[i],config[i])
+        else    
+            sim.setJointPosition(handles[i],config[i])
+        end
+    end
+end
 
--- Print joint angles into console window
-function printJointAngles()
+-- Pass joint names to moveCallback function
+function moveToConfig(handles,maxVel,maxAccel,maxJerk,targetConf)
     local currentConf={}
-    for i=1,#jointHandles,1 do
-        currentConf[i]=sim.getJointPosition(jointHandles[i])
+    for i=1,#handles,1 do
+        currentConf[i]=sim.getJointPosition(handles[i])
     end
-    print(currentConf)
+    sim.moveToConfig(-1,currentConf,nil,nil,maxVel,maxAccel,maxJerk,targetConf,nil,movCallback,handles)
 end
 
--- Open/ Close Gripper
-function actuateGripper(ui, id)
-    if id == 1001 then
-        -- open gripper
-        sim.clearIntegerSignal(gripperName.. '_close')
-    else
-        -- close gripper
-        sim.setIntegerSignal(gripperName.. '_close', 1)
-    end
-end
-
-
+-- Main thread process
 function sysCall_actuation()
     if simIK.applyIkEnvironmentToScene(ikEnv,ikGroup_undamped,true)~=simIK.result_success then
         simIK.applyIkEnvironmentToScene(ikEnv,ikGroup_damped)
     end
+
 end
 
 function sysCall_cleanup()
