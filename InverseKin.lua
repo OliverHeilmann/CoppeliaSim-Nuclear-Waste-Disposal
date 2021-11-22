@@ -37,8 +37,8 @@ end
 
 -- add x,y,z,r,p,y values for reference to set starting point for IK
 function setReferencePos()
-    local xyz =   {-6.1728351283818e-06, 2.348845243454, 0.13752445578575}
-    local rpy = {-1.5722107887268, -1.6277248505503e-05, 6.053357537894e-06}
+    local xyz =   {-1.0107352863997e-05, 0.39995434880257, 0.22210493683815}
+    local rpy = {-1.5749174356461, -7.2963935053849e-06, 1.987214818655e-05}
 
     -- Get handle of target to allow for changing state
     target = sim.getObjectHandle("referenceIK_obj"..robotnum) -- CHANGE FOR THE APPROPRIATE TARGET!

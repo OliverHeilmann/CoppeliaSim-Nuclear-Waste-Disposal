@@ -5,8 +5,8 @@ function uiSetup()
     xml = '<ui title="R1 Robot Arm Control" closeable="false" resizeable="true" activate="false">' .. [[
                     <button text="Print Joint Angles" on-click="printJointAngles" id="1"/>
                     <button text="Print Target State" on-click="printTargetPosition" id="2"/>
-                    <button text="Open Gripper" on-click="actuateGripperUI" id="1001" />
-                    <button text="Close Gripper" on-click="actuateGripperUI" id="1002" />
+                    <button text="Open Gripper" on-click="actuateGripper" id="1001" />
+                    <button text="Close Gripper" on-click="actuateGripper" id="1002" />
                     <label text="" style="* {margin-left: 200px;}"/>        
                     </ui>
                     ]]
@@ -38,7 +38,7 @@ function printTargetPosition()
     print(pos, orientation)
 end
 
-function actuateGripperUI(ui, id)
+function actuateGripper(ui, id)
     if id == 1001 then
         -- open gripper
         sim.clearIntegerSignal(gripperName.. '_close')
@@ -53,17 +53,6 @@ end
 ----------------------------------------------------------------------------------
 function sysCall_init()
     corout=coroutine.create(coroutineMain)
-
-    -- call UI box setup
-    uiSetup()
-
-    -- Get gripper name and set as global variable
-    local connection=sim.getObjectHandle('NiryoOne_connection')
-    local gripper=sim.getObjectChild(connection,0)
-    gripperName = "NiryoNoGripper"
-    if gripper~=-1 then
-        gripperName=sim.getObjectName(gripper)
-    end
 end
 
 function sysCall_actuation()
@@ -107,29 +96,6 @@ function moveToConfig_viaFK(maxVelocity,maxAcceleration,maxJerk,goalConfig,auxDa
     sim.moveToConfig(-1,startConfig,nil,nil,maxVelocity,maxAcceleration,maxJerk,goalConfig,nil,moveToConfigCallback,auxData,nil)
 end
 
-function moveToConfig_dXYZ(ikMaxVel,ikMaxAccel,ikMaxJerk,data,mytarget,dX,dY,dZ)
-    -- get target handle
-    local pose = sim.getObjectPose(mytarget,-1)
-
-    -- adjust current pose to user defined pose
-    pose[1] = pose[1] + dX  -- global x
-    pose[2] = pose[2] + dY  -- global y
-    pose[3] = pose[3] + dZ  -- global z
-
-    moveToPose_viaIK(ikMaxVel,ikMaxAccel,ikMaxJerk,pose,data)
-end
-
-function actuateGripper(command)
-    if command == "open" then
-        -- open gripper
-        sim.clearIntegerSignal(gripperName.. '_close')
-    elseif command == "close" then
-        -- close gripper
-        sim.setIntegerSignal(gripperName.. '_close', 1)
-    end
-    sim.wait(6) -- gripper time to open/ close
-end
-
 ----------------------------------------------------------------------------------
 -------------------------------- MAIN SECTION BELOW ------------------------------
 ----------------------------------------------------------------------------------
@@ -142,6 +108,7 @@ function coroutineMain()
     local simTip=sim.getObjectHandle('nodeIK_obj')
     local simTarget=sim.getObjectHandle('referenceIK_obj')
     local modelBase=sim.getObjectHandle(sim.handle_self)
+    --gripperHandle=sim.getObjectHandle('RG2')
     
     ikEnv=simIK.createEnvironment()
 
@@ -163,15 +130,18 @@ function coroutineMain()
     local ikMaxAccel={0.8,0.8,0.8,0.9}
     local ikMaxJerk={0.6,0.6,0.6,0.8}
 
-    -- IK delacate movement
-    local ikMaxVel_small={0.1,0.1,0.1,0.5}
-    local ikMaxAccel_small={0.1,0.1,0.1,0.3}
-    local ikMaxJerk_small={0.3,0.3,0.3,0.4}
+    local pickConfig={-70.1*math.pi/180,18.85*math.pi/180,93.18*math.pi/180,68.02*math.pi/180,109.9*math.pi/180,90*math.pi/180}
+    local dropConfig1={-183.34*math.pi/180,14.76*math.pi/180,78.26*math.pi/180,-2.98*math.pi/180,-90.02*math.pi/180,86.63*math.pi/180}
+    local dropConfig2={-197.6*math.pi/180,14.76*math.pi/180,78.26*math.pi/180,-2.98*math.pi/180,-90.02*math.pi/180,72.38*math.pi/180}
+    local dropConfig3={-192.1*math.pi/180,3.76*math.pi/180,91.16*math.pi/180,-4.9*math.pi/180,-90.02*math.pi/180,-12.13*math.pi/180}
+    local dropConfig4={-189.38*math.pi/180,24.94*math.pi/180,64.36*math.pi/180,0.75*math.pi/180,-90.02*math.pi/180,-9.41*math.pi/180}
 
-    local pickConfig={0.0021278122439981, -0.58866262435913, 0.58699184656143, 7.349462248385e-05, -1.5762243270874, 0.0019820025190711}
-    local macro_moves = {{0.0022422843612731, -0.4016324877739, 0.7152601480484, 0.00019060660270043, -1.7453393936157, 0.0022931143175811},
-                            {-1.7891311645508, -0.41722574830055, -0.032950282096863, -1.6671049594879, -1.3744693994522, -1.1116399765015},
-                            {-2.0959885120392, -0.59904563426971, 0.23584520816803, -1.7741186618805, -1.0830663442612, -1.1563498973846}}
+    local dropConfigs={dropConfig1,dropConfig2,dropConfig3,dropConfig4}
+    local dropConfigIndex=1
+    local droppedPartsCnt=0
+
+    --setGripperData(true)
+    --sim.setInt32Param(sim.intparam_current_page,0)
 
     local data={}
     data.ikEnv=ikEnv
@@ -180,37 +150,67 @@ function coroutineMain()
     data.target=simTarget
     data.joints=simJoints
 
-    fuelRods = {"fuelCentre", "fuelCentre#0", "fuelCentre#1", "fuelCentre#2"}
-    wait_time = 4
-    for i = 1, 4 do
+    --moveToConfig_viaFK(maxVel,maxAccel,maxJerk,pickConfig,data)
+    --sim.wait(10)
+
+    while (true) do
+
+        local pos1 = {0.0023124739527702, -0.42409363389015, 0.018077529966831, -4.0032842662185e-05, -1.16523873806, 0.0023059388622642}
+        moveToConfig_viaFK(maxVel,maxAccel,maxJerk,pos1,data)
+
+        sim.wait(10)
+
+
+        local fueltip=sim.getObjectHandle("fuelCentre")
+        local pose=sim.getObjectPose(fueltip,-1)
+        --pose[1]=pose[1]+0.105
+        moveToPose_viaIK(ikMaxVel,ikMaxAccel,ikMaxJerk,pose,data)
+
+        sim.wait(10)
+    end
+    
+    --[[
+    while droppedPartsCnt<6 do
         moveToConfig_viaFK(maxVel,maxAccel,maxJerk,pickConfig,data)
-        sim.wait(wait_time)
+        --sim.setInt32Param(sim.intparam_current_page,1)
 
-        local fueltip=sim.getObjectHandle(fuelRods[i])
-        local poseTarget=sim.getObjectPose(fueltip,-1)
-        poseTarget[3]=poseTarget[3]+0.12
-        moveToPose_viaIK(ikMaxVel,ikMaxAccel,ikMaxJerk,poseTarget,data)
-        sim.wait(wait_time)
+        local pose=sim.getObjectPose(simTip,-1)
+        pose[1]=pose[1]+0.105
+        moveToPose_viaIK(ikMaxVel,ikMaxAccel,ikMaxJerk,pose,data)
 
-        moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget, 0, 0, -0.07)
-        sim.wait(wait_time)
+        --setGripperData(false)
+        sim.wait(0.5)
 
-        actuateGripper("close") -- close gripper
+        pose[2]=pose[2]-0.2
+        pose[3]=pose[3]+0.2
+        moveToPose_viaIK(ikMaxVel,ikMaxAccel,ikMaxJerk,pose,data)
 
-        moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget, 0, 0, 0.06)
-        sim.wait(3)
-        moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget, 0, 0, 0.1)
-        sim.wait(3)
+        --sim.setInt32Param(sim.intparam_current_page,0)
 
-        -- move to next robot
-        for movestep = 1, 3 do
-            moveToConfig_viaFK(maxVel,maxAccel,maxJerk,macro_moves[movestep],data)
-            sim.wait(wait_time)
+        moveToConfig_viaFK(maxVel,maxAccel,maxJerk,dropConfigs[dropConfigIndex],data)
+
+        --sim.setInt32Param(sim.intparam_current_page,2)
+        local pose=sim.getObjectPose(simTip,-1)
+        local pose2=sim.copyTable(pose)
+        pose[3]=0.025+0.05*math.floor(0.1+droppedPartsCnt/2)
+        moveToPose_viaIK(ikMaxVel,ikMaxAccel,ikMaxJerk,pose,data)
+
+        --setGripperData(true)
+        sim.wait(0.5)
+
+        moveToPose_viaIK(ikMaxVel,ikMaxAccel,ikMaxJerk,pose2,data)
+
+
+        --sim.setInt32Param(sim.intparam_current_page,0)
+
+        dropConfigIndex=dropConfigIndex+1
+        if dropConfigIndex>4 then
+            dropConfigIndex=1
         end
 
-        actuateGripper("open") -- close gripper
-
+        droppedPartsCnt=droppedPartsCnt+1
     end
+    --]]
 
     moveToConfig_viaFK(maxVel,maxAccel,maxJerk,initConf,data)
     sim.stopSimulation()
