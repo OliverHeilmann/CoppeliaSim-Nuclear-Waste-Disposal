@@ -7,6 +7,7 @@ function uiSetup()
                     <button text="Print Target State" on-click="printTargetPosition" id="2"/>
                     <button text="Open Gripper" on-click="actuateGripperUI" id="1001" />
                     <button text="Close Gripper" on-click="actuateGripperUI" id="1002" />
+                    <button text="Print Vision" on-click="printVisionUI" id="3" />
                     <label text="" style="* {margin-left: 200px;}"/>        
                     </ui>
                     ]]
@@ -48,11 +49,23 @@ function actuateGripperUI(ui, id)
     end
 end
 
+function printVisionUI()
+    -- Get returned information from vision sensor
+    local handle = sim.getObjectHandle ('gripperVisionSensor')
+    if (sim.isHandleValid (handle)) then
+        _, _, unpackedPacket1 = sim.handleVisionSensor (handle)
+        _, _, unpackedPacket2 = sim.readVisionSensor(handle)
+
+        -- now print readable data to console
+        print(unpackedPacket2)
+    end
+end
+
 ----------------------------------------------------------------------------------
 -------------------------------- SETUP SECTION BELOW -----------------------------
 ----------------------------------------------------------------------------------
 function sysCall_init()
-    corout=coroutine.create(coroutineMain)
+    corout=coroutine.create(coroutineMain)  -- create main coroutine
 
     -- call UI box setup
     uiSetup()
@@ -212,7 +225,7 @@ function coroutineMain()
         local theirName = sim.unpackTable( sim.getStringSignal(sig_names[i]) )
         robot_names[i] = theirName[1]
     end
-    
+
     ----------------------------------------------------------------
     -- MAIN LOOP
     fuelRods = {"fuelCentre", "fuelCentre#0", "fuelCentre#1", "fuelCentre#2"}
@@ -220,6 +233,18 @@ function coroutineMain()
     for i = 1, 4 do
         moveToConfig_viaFK(maxVel,maxAccel,maxJerk,pickConfig,data)
         sim.wait(wait_time)
+
+        --[[
+        -- Get returned information from vision sensor
+        Hand = sim.getObjectHandle ('gripperVisionSensor')
+        if (sim.isHandleValid (Hand)) then
+            while (true) do
+                _, _, handle = sim.handleVisionSensor (Hand)
+                _, _, Data = sim.readVisionSensor(Hand)
+                print(Data)
+            end
+        end
+        --]]
 
         local fueltip=sim.getObjectHandle(fuelRods[i])
         local poseTarget=sim.getObjectPose(fueltip,-1)
