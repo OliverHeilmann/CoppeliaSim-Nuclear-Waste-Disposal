@@ -225,10 +225,10 @@ function coroutineMain()
 
     ----------------------------------------------------------------
     -- GET ALL OTHER ROBOT NAMES IN CHAIN
-    sim.waitForSignal("R2") --("R4") -- wait for final robot to init
+    sim.waitForSignal("R4") -- wait for final robot to init
     robot_names = {}
-    sig_names = {"R1", "R2"} --, "R3", "R4"}
-    for i=1, 2,1 do --4, 1 do
+    sig_names = {"R1", "R2", "R3", "R4"}
+    for i=1, 4, 1 do
         local theirName = sim.unpackTable( sim.getStringSignal(sig_names[i]) )
         robot_names[i] = theirName[1]
     end

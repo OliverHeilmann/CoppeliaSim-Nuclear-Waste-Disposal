@@ -3,11 +3,11 @@
 ----------------------------------------------------------------------------------
 -- Create popup window with buttons
 function uiSetup()
-    xml = '<ui title="R1 Robot Arm Control" closeable="false" resizeable="true" activate="false">' .. [[
+    xml = '<ui title="IK Robot Arm Control" closeable="false" resizeable="true" activate="false">' .. [[
                     <button text="Print Joint Angles" on-click="printJointAngles" id="1"/>
                     <button text="Print Target State" on-click="printTargetPosition" id="2"/>
-                    <button text="Open Gripper" on-click="actuateGripperUI" id="1001" />
-                    <button text="Close Gripper" on-click="actuateGripperUI" id="1002" />
+                    <button text="Open Gripper" on-click="actuateGripper" id="1001" />
+                    <button text="Close Gripper" on-click="actuateGripper" id="1002" />
                     <button text="Print Vision" on-click="printVisionUI" id="3" />
                     <label text="" style="* {margin-left: 200px;}"/>        
                     </ui>
@@ -32,7 +32,7 @@ function messageSetup()
 
     -- Publish my name so others can access it
     print("MAKE SURE TO SET THE IK SOLVER TO THE CORRECT ROBOT REFERENCE!!!!")
-    sim.setStringSignal("R1", sim.packTable({myname}))
+    sim.setStringSignal("R2", sim.packTable({myname}))              --EDIT HERE!
     
     -- Print for debugging
     print("IK: " .. simSend)
@@ -41,11 +41,11 @@ end
 
 -- add x,y,z,r,p,y values for reference to set starting point for IK
 function setReferencePos()
-    local xyz =   {-7.2102120611817e-05, 0.34925019741058, 0.25622445344925}
-    local rpy = {-1.5875544548035, -0.0001523432583781, 0.00034221456735395}
+    local xyz =   {0.30998355150223, -0.40416160225868, 0.28865250945091}
+    local rpy = {-1.5812225341797, 0.0011643173638731, -1.5596933364868}
 
     -- Get handle of target to allow for changing state
-    target = sim.getObjectHandle("referenceIK_obj"..robotnum) -- CHANGE FOR THE APPROPRIATE TARGET!
+    target = sim.getObjectHandle("referenceIK_obj"..robotnum)
 
     -- change target state
     sim.setObjectPosition(target, -1, xyz)
@@ -68,7 +68,7 @@ end
 
 -- Print Target position in console window
 function printTargetPosition()
-    target = sim.getObjectHandle("nodeIK_obj"..robotnum) -- CHANGE FOR THE APPROPRIATE TARGET!
+    target = sim.getObjectHandle("nodeIK_obj"..robotnum)
     
     -- get position and orientation of target
     pos = sim.getObjectPosition(target,-1)
@@ -106,7 +106,7 @@ end
 ----------------------------------------------------------------------------------
 -- Main thread
 function sysCall_init()
-    robotnum = "" --"#2" --define robot number
+    robotnum = "#0" --"#2" --define robot number                        --EDIT HERE!
     -- ALSO CHANGE THE R1 TO THE NEW ONE!!!
 
     -- Setup UI interactive boxes
@@ -173,7 +173,6 @@ function sysCall_actuation()
     if simIK.applyIkEnvironmentToScene(ikEnv,ikGroup_undamped,true)~=simIK.result_success then
         simIK.applyIkEnvironmentToScene(ikEnv,ikGroup_damped)
     end
-
 end
 
 function sysCall_cleanup()
