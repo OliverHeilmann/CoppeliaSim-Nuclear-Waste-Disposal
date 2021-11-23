@@ -18,8 +18,8 @@ function sysCall_vision(inData)
     simVision.sensorImgToWorkImg(inData.handle) 
 
     -- filter for the appropriate colour
-    simVision.selectiveColorOnWorkImg(inData.handle,{1.0,0.0,0.0},{1,0.2,0.0},true,true,true) -- red filter
-    --simVision.selectiveColorOnWorkImg(inData.handle,{0.81,1.0,0.0},{0.81,0.0,0.0},true,true,true) -- nuclear filter
+    --simVision.selectiveColorOnWorkImg(inData.handle,{1.0,0.0,0.0},{1,0.2,0.0},true,true,true) -- red filter
+    simVision.selectiveColorOnWorkImg(inData.handle,{0.81,1.0,0.0},{0.81,0.0,0.0},true,true,true) -- nuclear filter
 
     -- unpack the blob data (see below for more details on the contents)
     trigger, packedPacket=simVision.blobDetectionOnWorkImg(inData.handle, 0.1, 0.0, true, {1.0,1.0,1.0})

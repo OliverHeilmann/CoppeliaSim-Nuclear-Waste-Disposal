@@ -143,7 +143,7 @@ function moveToConfig_viaFK(maxVelocity,maxAcceleration,maxJerk,goalConfig,auxDa
     sim.moveToConfig(-1,startConfig,nil,nil,maxVelocity,maxAcceleration,maxJerk,goalConfig,nil,moveToConfigCallback,auxData,nil)
 end
 
-function moveToConfig_dXYZ(ikMaxVel,ikMaxAccel,ikMaxJerk,data,mytarget,dX,dY,dZ)
+function moveToConfig_dXYZ(ikMaxVel,ikMaxAccel,ikMaxJerk,data,mytarget,dX,dY,dZ,qx,qy,qz,qw)
     -- get target handle
     local pose = sim.getObjectPose(mytarget,-1)
 
@@ -151,6 +151,11 @@ function moveToConfig_dXYZ(ikMaxVel,ikMaxAccel,ikMaxJerk,data,mytarget,dX,dY,dZ)
     pose[1] = pose[1] + dX  -- global x
     pose[2] = pose[2] + dY  -- global y
     pose[3] = pose[3] + dZ  -- global z
+
+    pose[4] = pose[4] + qx  -- global x
+    pose[5] = pose[5] + qy  -- global y
+    pose[6] = pose[6] + qz  -- global z
+    pose[7] = pose[7] + qw  -- global z
 
     moveToPose_viaIK(ikMaxVel,ikMaxAccel,ikMaxJerk,pose,data)
 end
@@ -178,7 +183,8 @@ function coroutineMain()
     local simTip=sim.getObjectHandle('nodeIK_obj')
     local simTarget=sim.getObjectHandle('referenceIK_obj')
     local modelBase=sim.getObjectHandle(sim.handle_self)
-    
+
+    -- create inverse kinematic environment
     ikEnv=simIK.createEnvironment()
 
     -- Prepare the ik group, using the convenience function 'simIK.addIkElementFromScene':
@@ -204,6 +210,7 @@ function coroutineMain()
     local ikMaxAccel_small={0.1,0.1,0.1,0.3}
     local ikMaxJerk_small={0.3,0.3,0.3,0.4}
 
+    -- define FK movements which will be conducted in main actions (note these will be looped through)
     local pickConfig={0.0021278122439981, -0.58866262435913, 0.58699184656143, 7.349462248385e-05, -1.5762243270874, 0.0019820025190711}
     local macro_moves = {{0.0022422843612731, -0.4016324877739, 0.7152601480484, 0.00019060660270043, -1.7453393936157, 0.0022931143175811},
                             {-1.7891311645508, -0.41722574830055, -0.032950282096863, -1.6671049594879, -1.3744693994522, -1.1116399765015},
@@ -233,33 +240,70 @@ function coroutineMain()
     for i = 1, 4 do
         moveToConfig_viaFK(maxVel,maxAccel,maxJerk,pickConfig,data)
         sim.wait(wait_time)
-
-        --[[
+        
         -- Get returned information from vision sensor
-        Hand = sim.getObjectHandle ('gripperVisionSensor')
-        if (sim.isHandleValid (Hand)) then
-            while (true) do
-                _, _, handle = sim.handleVisionSensor (Hand)
-                _, _, Data = sim.readVisionSensor(Hand)
-                print(Data)
+        local handle = sim.getObjectHandle ('gripperVisionSensor')
+        if (sim.isHandleValid (handle)) then
+            
+            -- get first pose of gripper target (will be used to adjust its location)
+            local pStart = sim.getObjectPose(simTip,-1)
+            
+            -- loop through until the fuel rod is in centre of gripper
+            local done = {false, false} -- used to check if adjustments have finished
+            while (done[1] ~= true or done[2] ~= true) do
+                _, _, unpackedPacket1 = sim.handleVisionSensor (handle)
+                _, _, unpackedPacket2 = sim.readVisionSensor(handle)
+
+                -- now print readable data to console
+                print(unpackedPacket2)
+
+                -- incrimental movement value
+                local stepSize = 0.001
+
+                -- get position of target now and make a new table pNext (will be updated in if statements)
+                local pNow = sim.getObjectPose(simTip,-1)
+                local pNext = {pNow[1], pNow[2], pStart[3], pStart[4], pStart[5], pStart[6], pStart[7]}
+                
+                -- dX direction
+                if (unpackedPacket2[1] > 256) then
+                    pNext[1] = pNow[1] + stepSize
+                elseif (unpackedPacket2[1] < 254) then
+                    pNext[1] = pNow[1] - stepSize
+                else
+                    done[1] = true
+                end
+
+                -- dY direction
+                if ( unpackedPacket2[2] > 258) then
+                    pNext[2] = pNow[2] + stepSize
+                elseif ( unpackedPacket2[2] < 256) then
+                    pNext[2] = pNow[2] - stepSize
+                else
+                    done[2] = true
+                end
+
+                -- now move to the pNext location which was defined in above if statements
+                moveToPose_viaIK(ikMaxVel,ikMaxAccel,ikMaxJerk,pNext,data)
             end
         end
-        --]]
 
+        --[[
+        -- use the fuel rod dummy variable to move to location rather than computer vision
         local fueltip=sim.getObjectHandle(fuelRods[i])
         local poseTarget=sim.getObjectPose(fueltip,-1)
         poseTarget[3]=poseTarget[3]+0.12
         moveToPose_viaIK(ikMaxVel,ikMaxAccel,ikMaxJerk,poseTarget,data)
         sim.wait(wait_time)
+        ]]
 
-        moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget, 0, 0, -0.07)
+        moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget,0,0,-0.12,0,0,0,0)
         sim.wait(wait_time)
 
         actuateGripper("close") -- close gripper
 
-        moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget, 0, 0, 0.06)
+        moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget,0,0,0.06,0,0,0,0)
         sim.wait(3)
-        moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget, 0, 0, 0.1)
+        moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget,0,0,0.1,0,0,0,0)
         sim.wait(3)
 
         -- move to next robot

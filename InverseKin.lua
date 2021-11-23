@@ -1,10 +1,14 @@
+----------------------------------------------------------------------------------
+-------------------------------- POPUP SECTION BELOW -----------------------------
+----------------------------------------------------------------------------------
 -- Create popup window with buttons
 function uiSetup()
-    xml = '<ui title="IK Robot Arm Control" closeable="false" resizeable="true" activate="false">' .. [[
+    xml = '<ui title="R1 Robot Arm Control" closeable="false" resizeable="true" activate="false">' .. [[
                     <button text="Print Joint Angles" on-click="printJointAngles" id="1"/>
                     <button text="Print Target State" on-click="printTargetPosition" id="2"/>
-                    <button text="Open Gripper" on-click="actuateGripper" id="1001" />
-                    <button text="Close Gripper" on-click="actuateGripper" id="1002" />
+                    <button text="Open Gripper" on-click="actuateGripperUI" id="1001" />
+                    <button text="Close Gripper" on-click="actuateGripperUI" id="1002" />
+                    <button text="Print Vision" on-click="printVisionUI" id="3" />
                     <label text="" style="* {margin-left: 200px;}"/>        
                     </ui>
                     ]]
@@ -37,8 +41,8 @@ end
 
 -- add x,y,z,r,p,y values for reference to set starting point for IK
 function setReferencePos()
-    local xyz =   {-1.0107352863997e-05, 0.39995434880257, 0.22210493683815}
-    local rpy = {-1.5749174356461, -7.2963935053849e-06, 1.987214818655e-05}
+    local xyz =   {-7.2102120611817e-05, 0.34925019741058, 0.25622445344925}
+    local rpy = {-1.5875544548035, -0.0001523432583781, 0.00034221456735395}
 
     -- Get handle of target to allow for changing state
     target = sim.getObjectHandle("referenceIK_obj"..robotnum) -- CHANGE FOR THE APPROPRIATE TARGET!
@@ -85,6 +89,21 @@ function actuateGripper(ui, id)
     end
 end
 
+function printVisionUI()
+    -- Get returned information from vision sensor
+    local handle = sim.getObjectHandle ('gripperVisionSensor')
+    if (sim.isHandleValid (handle)) then
+        _, _, unpackedPacket1 = sim.handleVisionSensor (handle)
+        _, _, unpackedPacket2 = sim.readVisionSensor(handle)
+
+        -- now print readable data to console
+        print(unpackedPacket2)
+    end
+end
+
+----------------------------------------------------------------------------------
+-------------------------------- SETUP SECTION BELOW -----------------------------
+----------------------------------------------------------------------------------
 -- Main thread
 function sysCall_init()
     robotnum = "" --"#2" --define robot number
