@@ -181,7 +181,7 @@ end
 function coroutineMain()
     -- Initialize some values:
     local simJoints={}
-    for i=1,5,1 do
+    for i=1,6,1 do
         simJoints[i]=sim.getObjectHandle('NiryoOneJoint'..i)
     end
     local simTip=sim.getObjectHandle('nodeIK_obj')
