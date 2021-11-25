@@ -215,7 +215,7 @@ function coroutineMain()
     sim.waitForSignal("R4") -- wait for final robot to init
     robot_names = {}
     sig_names = {"R1", "R2", "R3", "R4"}
-    for i=1, 4, 1 do
+    for i=1, 2, 1 do
         local theirName = sim.unpackTable( sim.getStringSignal(sig_names[i]) )
         robot_names[i] = theirName[1]
     end
@@ -255,19 +255,28 @@ function coroutineMain()
     -- reset signal to 0 for next fuel rod
     sim.setIntegerSignal(channel1,0)
 
-    local nextPos =  {{-2.0038895606995, 0.034294486045837, -0.65636569261551, -0.68560194969177, 0.74801075458527, -1.0459446907043},
-                    {-1.8074269294739, 0.098764300346375, -0.67671972513199, -3.0544075965881, -0.56639635562897, -0.14671874046326}}
+    local nextPos =  {{-0.49697303771973, -0.61107516288757, 0.20322360098362, -1.7530732154846, -1.1088200807571, 0.40732210874557},
+                     {-0.71575927734375, -0.19643351435661, -0.37149202823639, -1.9780020713806, -0.97086751461029, 0.6506695151329}}
     
     -- move to next robot
     for movestep = 1, 2 do
         moveToConfig_viaFK(maxVel,maxAccel,maxJerk,nextPos[movestep],data)
-        sim.wait(wait_time)
+        --sim.wait(wait_time)
     end
+
+    print("done loop")
 
     -- tell R3 that R2 is in place
     sim.setIntegerSignal(channel2,0) --chat on CH2
 
-    sim.wait(4)
+    -- Wait for signal from R3 (rod in place)
+    while (sim.getIntegerSignal(robot_names[3].."_CH2") ~= 1) do
+        sim.wait(0.25)
+    end
+
     actuateGripper("open") -- close gripper
-    sim.wait(4)
+    sim.wait(wait_time)
+
+    -- return to starting position
+    moveToConfig_viaFK(maxVel,maxAccel,maxJerk,startConfig,data)
 end

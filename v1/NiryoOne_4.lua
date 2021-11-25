@@ -134,6 +134,7 @@ function coroutineMain()
 
     -- ensure final robot has finished making their reference name
     sim.waitForSignal("R4")
+    sim.wait(1) -- allow R1 enough time to make graph
 
     -- get all robot names dynamically
     robot_names = {}
@@ -153,42 +154,47 @@ function coroutineMain()
     local maxAccel={accel*math.pi/180,accel*math.pi/180,accel*math.pi/180,accel*math.pi/180,accel*math.pi/180,accel*math.pi/180}
     local maxJerk={jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180}
 
+    for i = 1, 5 do
+        ----------------------------------------------------------------
+        -- MOVE TO R3/R4 LOCATION, THEN GRAB ROD FROM R3
 
-    ----------------------------------------------------------------
-    -- MOVE TO R3/R4 LOCATION, THEN GRAB ROD FROM R3
+        -- move away from wall
+        local pos = {0.018514279276133, 0.53788828849792, -0.89212203025818, 0.0064570941030979, -1.2166624069214, -0.00010122731328011}
+        moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos)
 
-    -- move away from wall
-    local pos = {0.018514279276133, 0.53788828849792, -0.89212203025818, 0.0064570941030979, -1.2166624069214, -0.00010122731328011}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos)
+        -- move to niryo 1
+        --local pos1 =  {0.61427265405655, -1.1134645938873, 0.34770035743713, 2.0251832008362, -1.1422690153122, -0.86586511135101}
+        local pos1 = {0.82197904586792, -1.223904967308, 1.0393948554993, 3.0542800426483, 1.1769044399261, -2.2845084667206}
+        moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos1)
 
-    -- move to niryo 1
-    local pos1 =  {0.61427265405655, -1.1134645938873, 0.34770035743713, 2.0251832008362, -1.1422690153122, -0.86586511135101}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos1)
+        -- Wait for signal from R1 (rod in place)
+        while (sim.getIntegerSignal(robot_names[3].."_CH1") ~= 1) do
+            sim.wait(0.25)
+        end
+        
+        -- grab object with gripper
+        sim.setIntegerSignal(gripperName.. '_close', 1) --close
+        sim.wait(7)
 
-    -- Wait for signal from R1 (rod in place)
-    while (sim.getIntegerSignal(robot_names[3].."_CH1") ~= 1) do
-        sim.wait(0.25)
+        -- tell R1 that R2 has closed gripper
+        sim.setIntegerSignal(simSend,1)
+        sim.wait(3)
+
+        --local pos3 = {1.5256195068359, -0.64317941665649, -0.66680145263672, 3.0542986392975, -1.3046585321426, -1.5476306676865}
+        local pos3 = {1.4680662155151, -0.57728731632233, -0.080914974212646, 3.0541667938232, 0.79892134666443, -1.6072790622711}
+        moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos3)
+
+        --local pos4 =  {3.054322719574, 0.086541354656219, -0.23199617862701, 1.8568181991577, -0.14869892597198, -1.925687789917}
+        local pos4 = {3.0543417930603, -0.32980120182037, 0.81690573692322, 3.0544304847717, 1.9198403358459, 1.0865199565887}
+        moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos4)
+
+        --local pos5 = {-1.69868683815, -0.64544856548309, 1.0028569698334, -0.099651575088501, -1.7453370094299, -0.16341280937195}
+        --moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos5)
+
+        sim.clearIntegerSignal(gripperName.. '_close') --open
+        sim.wait(4)
+
+        -- set signal back to high for next pass
+        sim.setIntegerSignal(simSend,0)
     end
-    
-    -- grab object with gripper
-    sim.setIntegerSignal(gripperName.. '_close', 1) --close
-    sim.wait(7)
-
-    -- tell R1 that R2 has closed gripper
-    sim.setIntegerSignal(simSend,1)
-    sim.wait(3)
-
-    local pos3 = {1.5256195068359, -0.64317941665649, -0.66680145263672, 3.0542986392975, -1.3046585321426, -1.5476306676865}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos3)
-
-    local pos4 =  {3.054322719574, 0.086541354656219, -0.23199617862701, 1.8568181991577, -0.14869892597198, -1.925687789917}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos4)
-
-    --local pos5 = {-1.69868683815, -0.64544856548309, 1.0028569698334, -0.099651575088501, -1.7453370094299, -0.16341280937195}
-    --moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos5)
-
-
-    sim.clearIntegerSignal(gripperName.. '_close') --open
-    sim.wait(4)
-
 end

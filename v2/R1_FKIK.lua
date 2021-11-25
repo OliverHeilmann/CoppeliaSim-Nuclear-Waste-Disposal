@@ -80,6 +80,10 @@ function sysCall_init()
     if gripper~=-1 then
         gripperName=sim.getObjectName(gripper)
     end
+
+    -- setup graphing properties
+    --graph=sim.getObjectHandle('R1_Graph')
+    --distStream=sim.addGraphStream(graph,'Joint X Torque','N',0,{1,0,0})
 end
 
 function sysCall_actuation()
@@ -177,7 +181,7 @@ end
 function coroutineMain()
     -- Initialize some values:
     local simJoints={}
-    for i=1,6,1 do
+    for i=1,5,1 do
         simJoints[i]=sim.getObjectHandle('NiryoOneJoint'..i)
     end
     local simTip=sim.getObjectHandle('nodeIK_obj')
@@ -228,7 +232,7 @@ function coroutineMain()
     sim.waitForSignal("R4") -- wait for final robot to init
     robot_names = {}
     sig_names = {"R1", "R2", "R3", "R4"}
-    for i=1, 4, 1 do
+    for i=1, 2, 1 do
         local theirName = sim.unpackTable( sim.getStringSignal(sig_names[i]) )
         robot_names[i] = theirName[1]
     end
@@ -236,8 +240,8 @@ function coroutineMain()
     ----------------------------------------------------------------
     -- MAIN LOOP
     fuelRods = {"fuelCentre", "fuelCentre#0", "fuelCentre#1", "fuelCentre#2"}
-    wait_time = 4 -- time to wait between movements (seconds)
-    for i = 1, 4 do
+    wait_time = 2.3 -- time to wait between movements (seconds)
+    for i = 1, 5 do
         moveToConfig_viaFK(maxVel,maxAccel,maxJerk,pickConfig,data)
         sim.wait(wait_time)
         
@@ -255,7 +259,7 @@ function coroutineMain()
                 _, _, unpackedPacket2 = sim.readVisionSensor(handle)
 
                 -- now print readable data to console
-                print(unpackedPacket2)
+                --print(unpackedPacket2)
 
                 -- incrimental movement value
                 local stepSize = 0.001
@@ -286,6 +290,8 @@ function coroutineMain()
                 moveToPose_viaIK(ikMaxVel,ikMaxAccel,ikMaxJerk,pNext,data)
             end
         end
+
+
 
         --[[
         -- use the fuel rod dummy variable to move to location rather than computer vision
@@ -329,6 +335,6 @@ function coroutineMain()
     end
 
     moveToConfig_viaFK(maxVel,maxAccel,maxJerk,initConf,data)
-    sim.stopSimulation()
-    
+    sim.wait(5)
+    --sim.stopSimulation()
 end

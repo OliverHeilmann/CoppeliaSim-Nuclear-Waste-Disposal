@@ -152,58 +152,65 @@ function coroutineMain()
     local maxAccel={accel*math.pi/180,accel*math.pi/180,accel*math.pi/180,accel*math.pi/180,accel*math.pi/180,accel*math.pi/180}
     local maxJerk={jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180,jerk*math.pi/180}
 
-    ----------------------------------------------------------------
-    -- MOVE TO R2/R3 LOCATION, THEN GRAB ROD FROM R2
+    for i = 1, 5 do
+        ----------------------------------------------------------------
+        -- MOVE TO R2/R3 LOCATION, THEN GRAB ROD FROM R2
 
-    -- move away from wall
-    local pos = {0.018514279276133, 0.53788828849792, -0.89212203025818, 0.0064570941030979, -1.2166624069214, -0.00010122731328011}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos)
+        -- move away from wall
+        local pos = {0.018514279276133, 0.53788828849792, -0.89212203025818, 0.0064570941030979, -1.2166624069214, -0.00010122731328011}
+        moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos)
 
-    -- move ready to collect rod from R2
-    local pos1 = {-0.44177311658859, -0.91892397403717, 0.18760776519775, -1.8766129016876, -1.2468864917755, 0.7809898853302}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos1)
+        -- move ready to collect rod from R2
+        local pos1 = {-0.44177311658859, -0.91892397403717, 0.18760776519775, -1.8766129016876, -1.2468864917755, 0.7809898853302}
+        moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos1)
 
-    local pos2 = {-0.41322028636932, -1.0203392505646, 0.37898004055023, -1.8254935741425, -1.2424811124802, 0.68131577968597}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos2)
+        local pos2 = {-0.41322028636932, -1.0203392505646, 0.37898004055023, -1.8254935741425, -1.2424811124802, 0.68131577968597}
+        moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos2)
 
-    -- Wait for signal from R2 (rod in place)
-    while (sim.getIntegerSignal(robot_names[2].."_CH2") ~= 1) do
-        sim.wait(0.25)
+        -- Wait for signal from R2 (rod in place)
+        while (sim.getIntegerSignal(robot_names[2].."_CH2") ~= 1) do
+            sim.wait(0.25)
+        end
+        
+        -- grab object with gripper
+        sim.setIntegerSignal(gripperName.. '_close', 1) --close
+        sim.wait(7)
+
+        -- tell R1 that R2 has closed gripper
+        sim.setIntegerSignal(simRecieve,1)
+        sim.wait(3)
+
+        -- set signal back to high for next pass
+        sim.setIntegerSignal(simRecieve,0)
+
+        -- move away from R2 to complete pass over
+        local pos3 = {-0.83444774150848, -0.42017310857773, -0.7326043844223, -2.3592672348022, -1.2636750936508, 1.2788199186325}
+        moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos3)
+
+        local pos4 = {-0.62785005569458, -0.38807138800621, -0.65722018480301, -2.3943223953247, -1.0484414100647, -0.37324190139771}
+        moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos4)
+
+        local pos5 = {1.2516194581985, -0.22126001119614, -0.26860845088959, -3.0543649196625, 1.0777109861374, 1.209512591362}
+        moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos5)
+
+        local pos6 = {1.9784574508667, -0.76329916715622, 0.27675852179527, 0.072958767414093, -1.1067006587982, -1.1951094865799}
+        moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos6)
+
+        local pos7 = {2.2673468589783, -1.2884149551392, 1.2268596887589, 0.068678915500641, -1.5113272666931, -0.87699472904205}
+        moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos7)
+
+        -- tell R4 that R3 is in place
+        sim.setIntegerSignal(simSend,1) --chat on CH1
+
+        -- Wait for signal from R4 (rod in place)
+        while (sim.getIntegerSignal(robot_names[4].."_CH1") ~= 1) do
+            sim.wait(0.25)
+        end
+
+        sim.clearIntegerSignal(gripperName.. '_close') --open
+        sim.wait(4)
+
+        -- set signal back to high for next pass
+        sim.setIntegerSignal(simSend,0) --chat on
     end
-    
-    -- grab object with gripper
-    sim.setIntegerSignal(gripperName.. '_close', 1) --close
-    sim.wait(7)
-
-    -- tell R1 that R2 has closed gripper
-    sim.setIntegerSignal(simRecieve,1)
-    sim.wait(3)
-
-    -- move away from R2 to complete pass over
-    local pos3 = {-0.83444774150848, -0.42017310857773, -0.7326043844223, -2.3592672348022, -1.2636750936508, 1.2788199186325}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos3)
-
-    local pos4 = {-0.62785005569458, -0.38807138800621, -0.65722018480301, -2.3943223953247, -1.0484414100647, -0.37324190139771}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos4)
-
-    local pos5 = {1.2516194581985, -0.22126001119614, -0.26860845088959, -3.0543649196625, 1.0777109861374, 1.209512591362}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos5)
-
-    local pos6 = {1.9784574508667, -0.76329916715622, 0.27675852179527, 0.072958767414093, -1.1067006587982, -1.1951094865799}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos6)
-
-    local pos7 = {2.2673468589783, -1.2884149551392, 1.2268596887589, 0.068678915500641, -1.5113272666931, -0.87699472904205}
-    moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos7)
-
-    -- tell R4 that R3 is in place
-    sim.setIntegerSignal(simSend,1) --chat on CH1
-
-    -- Wait for signal from R4 (rod in place)
-    while (sim.getIntegerSignal(robot_names[4].."_CH1") ~= 1) do
-        sim.wait(0.25)
-    end
-
-    sim.clearIntegerSignal(gripperName.. '_close') --open
-    sim.wait(4)
-
 end

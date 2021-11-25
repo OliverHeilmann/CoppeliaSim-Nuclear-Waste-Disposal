@@ -63,6 +63,9 @@ function sysCall_vision(inData)
         dx_pix = tonumber(string.format("%.3f", math.floor(data[5]*512)))
         dy_pix  = tonumber(string.format("%.3f", math.floor(data[6]*512)))
         dz_depth = tonumber(string.format("%.3f", depthBuffer[1]))
+
+        -- put text on window to illustrate which target fuel rod is.
+        --simIM.text(inData.handle,"Target",{relativeX,relativeY},simIM.fontFace.simplex,false,1.0,{255,255,255},1,8,false)
     end
 
     -- convert the work image to the vision sensor image buffer
