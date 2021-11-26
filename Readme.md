@@ -1,6 +1,12 @@
-# Description
-This project demonstrates how four robotic arms can be used to repository contains all the necessary files to build the project described.
+# Introduction
+This project demonstrates how four robotic arms can be used to take nuclear fuel rods out of a reactor and pass them through a series of obstacles. As well as graphically plotting torque loads on the robotic arms (a feature which a digital twin might employ), the system also employs computer vision to locate and select which specific fuel rods should be selected. This repository contains all the necessary files and information to build and run the project described above.
 
+# Description
+
+
+<p align="center">
+   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/DemoView.png">
+</p>
 
 # Exporting From Unity
 1) Install FBX Exporter --> GameObject --> Export to XBF (note that you should select top level to export)
