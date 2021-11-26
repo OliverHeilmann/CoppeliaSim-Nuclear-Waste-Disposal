@@ -17,23 +17,32 @@ This project demonstrates how four robotic arms can be used to extract nuclear f
    <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/pic2_R1.png">
 </p>
 5) Popup window is used to allow users to control some actions of the robotic arm e.g. joint angles, computer vision frame etc.
+<p align="center">
+   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/pic4_graph.png">
+</p>
 6) Joint torques are displayed on a graph to illustrate how the forces vary during operation. Note that all 6 joints (for robot 1, closes to the reactor) are displayed on the same graph to conserve space. Ideally, they would be presented on separate scales to allow users to see the joints with lower maximum torques.
 
-# Exporting From Unity
+# Script Breakdown
+1) Robot 1 (R1): [R1_FKIK](https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/v2/R1_FKIK.lua) implimentation uses forward and inverse kinematics, [computer vision](https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/v2/gripperVisionSensor.lua) and measures [joint torque values](measureJointTorques.lua).
+2) Robot 2 (R2)
+3) Robot 3 (R3)
+4) Robot 4 (R4)
+
+# Future Improvements
+1) Currently, only the first robotic arm employs the forward kinematic *and* inverse kinematic approach. I believe this to be a more sophisticated approach to the one currently used in robots 2-4. Due to time constraints, I was not able to update these robots. Given that they did not need to perform any complex manouvers, as compared with the first robot using computer vision, it was not deemed necessary. Nevertheless, this implimentation would allow for more flexibility when making further developments. See [R2_FKIK](https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/v2/R2_FKIK.lua) for the first stages of this implimentation.
+2) The method for moving the robotic arm toward the selected fuel rod could be improved with a path finding algorithm such as A*. The current method checks whether the fuel rod is in the centre of the frame (within a boundary) and then stop moving if said criteria is met. This causes some oscillations at near satisfied condition.
+3) Implimentation of a line following robot as opposed to a conveyor belt would demonstrate more variation of capabilites within the simulation.
+
+# Assets from Unity to CoppeliaSim
+## Exporting From Unity
 1) Install FBX Exporter --> GameObject --> Export to XBF (note that you should select top level to export)
 2) Install Probuilder --> tools --> ProBuilder --> ProBuilder Window --> ProBuilderize
 3) Tools --> ProBuilder --> Export --> Export Obj
 
-# Importing to CoppeliaSim
+## Importing to CoppeliaSim
 1) Note: CoppeliaSim can import objects with textures but the textures MUST be as JPEG (or similar)
 2) Your files will be tif --> convert them to JPEG using [this!](https://cloudconvert.com/tif-to-jpg)
 3) Your Mat file will reference the old .tif file --> change it to .jpeg file instead.
-
-# Notes on Syntax
-use "" for referring to objects in self
-use '' for referring to objects not in self i.e. world objects
-
-consider ur5WithRg2Grasping demo scene
 
 # Useful Links
 1) [Standard Sim API](https://www.coppeliarobotics.com/helpFiles/en/apiFunctions.htm)
