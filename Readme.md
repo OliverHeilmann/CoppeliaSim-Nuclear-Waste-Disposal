@@ -1,5 +1,5 @@
 # Description
-Words to be added...
+This project demonstrates how four robotic arms can be used to repository contains all the necessary files to build the project described.
 
 
 # Exporting From Unity
@@ -17,3 +17,12 @@ use "" for referring to objects in self
 use '' for referring to objects not in self i.e. world objects
 
 consider ur5WithRg2Grasping demo scene
+
+# Useful Links
+1) [Standard Sim API](https://www.coppeliarobotics.com/helpFiles/en/apiFunctions.htm)
+2) [Vision Sim API](https://www.coppeliarobotics.com/helpFiles/en/simVision.htm?view=category)
+3) [IM Sim API](https://www.coppeliarobotics.com/helpFiles/en/simIM.htm?view=alphabetical)
+4) [Vision Callback Functions](https://www.coppeliarobotics.com/helpFiles/en/visionCallbackFunctions.htm)
+5) [Messagining/ Interfacing/ Connectivity](https://www.coppeliarobotics.com/helpFiles/en/meansOfCommunication.htm#signals)
+6) [Accessing Objects Programmatically](https://www.coppeliarobotics.com/helpFiles/en/accessingGeneralObjects.htm)
+7) [Bubble Robot Demo](https://www.coppeliarobotics.com/helpFiles/en/bubbleRobTutorial.htm)
