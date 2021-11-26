@@ -24,9 +24,9 @@ This project demonstrates how four robotic arms can be used to extract nuclear f
 
 # Script Breakdown
 1) Robot 1 (R1): [R1_FKIK](https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/v2/R1_FKIK.lua) implimentation uses forward and inverse kinematics, [computer vision](https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/v2/gripperVisionSensor.lua) and measures [joint torque values](measureJointTorques.lua).
-2) Robot 2 (R2)
-3) Robot 3 (R3)
-4) Robot 4 (R4)
+2) Robot 2 (R2): [NiryoOne_2](https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/v1/NiryoOne_2.lua) is a forward kinematic model.
+3) Robot 3 (R3): [NiryoOne_3](https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/v1/NiryoOne_3.lua) is a forward kinematic model.
+4) Robot 4 (R4): [NiryoOne_4](https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/v1/NiryoOne_4.lua) is a forward kinematic model.
 
 # Future Improvements
 1) Currently, only the first robotic arm employs the forward kinematic *and* inverse kinematic approach. I believe this to be a more sophisticated approach to the one currently used in robots 2-4. Due to time constraints, I was not able to update these robots. Given that they did not need to perform any complex manouvers, as compared with the first robot using computer vision, it was not deemed necessary. Nevertheless, this implimentation would allow for more flexibility when making further developments. See [R2_FKIK](https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/v2/R2_FKIK.lua) for the first stages of this implimentation.
