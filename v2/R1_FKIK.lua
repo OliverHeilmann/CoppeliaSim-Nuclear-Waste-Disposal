@@ -184,6 +184,10 @@ function coroutineMain()
     for i=1,6,1 do
         simJoints[i]=sim.getObjectHandle('NiryoOneJoint'..i)
     end
+
+    -- Show users which joints have been enabled
+    print("Joints Handles: ", simJoints)
+
     local simTip=sim.getObjectHandle('nodeIK_obj')
     local simTarget=sim.getObjectHandle('referenceIK_obj')
     local modelBase=sim.getObjectHandle(sim.handle_self)
@@ -269,9 +273,9 @@ function coroutineMain()
                 local pNext = {pNow[1], pNow[2], pStart[3], pStart[4], pStart[5], pStart[6], pStart[7]}
                 
                 -- dX direction
-                if (unpackedPacket2[1] > 256) then
+                if ( unpackedPacket2[1] > 256) then
                     pNext[1] = pNow[1] + stepSize
-                elseif (unpackedPacket2[1] < 254) then
+                elseif ( unpackedPacket2[1] < 254) then
                     pNext[1] = pNow[1] - stepSize
                 else
                     done[1] = true
@@ -290,8 +294,6 @@ function coroutineMain()
                 moveToPose_viaIK(ikMaxVel,ikMaxAccel,ikMaxJerk,pNext,data)
             end
         end
-
-
 
         --[[
         -- use the fuel rod dummy variable to move to location rather than computer vision
