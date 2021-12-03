@@ -123,18 +123,18 @@ function coroutineMain()
     -- MAIN LOOP
     while true do
         moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget,0,0,-0.12,0,0,0,0)
-        sim.wait(3)
+        sim.wait(1)
 
         moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget,0,0,0.06,0,0,0,0)
-        sim.wait(3)
+        sim.wait(1)
 
         moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget,0,0,0.1,0,0,0,0)
-        sim.wait(3)
+        sim.wait(1)
 
         -- move to next robot
         for movestep = 1, 3 do
             moveToConfig_viaFK(maxVel,maxAccel,maxJerk,macro_moves[movestep],data)
-            sim.wait(3)
+            sim.wait(1)
         end
     end 
 

@@ -247,7 +247,7 @@ function coroutineMain()
     wait_time = 2.3 -- time to wait between movements (seconds)
     for i = 1, 5 do
         moveToConfig_viaFK(maxVel,maxAccel,maxJerk,pickConfig,data)
-        sim.wait(wait_time)
+        sim.wait(4)
         
         -- Get returned information from vision sensor
         local handle = sim.getObjectHandle ('gripperVisionSensor')
