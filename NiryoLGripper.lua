@@ -5,7 +5,7 @@ function sysCall_init()
     attachPtA=sim.getObjectHandle('NiryoLGripper_attachPtA')
     attachPtB=sim.getObjectHandle('NiryoLGripper_attachPtB')
     motor=sim.getObjectHandle('NiryoLGripper_rightJoint1')
-    maxV=10*math.pi/180 -- change vals here for velocity!
+    maxV=20*math.pi/180 -- change vals here for velocity!
     closed=false
     delay=-1
 end

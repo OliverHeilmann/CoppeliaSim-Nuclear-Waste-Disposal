@@ -244,10 +244,10 @@ function coroutineMain()
     ----------------------------------------------------------------
     -- MAIN LOOP
     fuelRods = {"fuelCentre", "fuelCentre#0", "fuelCentre#1", "fuelCentre#2"}
-    wait_time = 2.3 -- time to wait between movements (seconds)
+    wait_time = 2.5 -- time to wait between movements (seconds)
     for i = 1, 5 do
         moveToConfig_viaFK(maxVel,maxAccel,maxJerk,pickConfig,data)
-        sim.wait(4)
+        sim.wait(3.5)
         
         -- Get returned information from vision sensor
         local handle = sim.getObjectHandle ('gripperVisionSensor')
@@ -265,26 +265,36 @@ function coroutineMain()
                 -- now print readable data to console
                 --print(unpackedPacket2)
 
-                -- incrimental movement value
-                local stepSize = 0.001
+                -- incrimental movement value [mm / step]
+                --local stepSize = 0.001
+                local maxStep = 0.01
+                local minStep = 0.001
 
                 -- get position of target now and make a new table pNext (will be updated in if statements)
                 local pNow = sim.getObjectPose(simTip,-1)
                 local pNext = {pNow[1], pNow[2], pStart[3], pStart[4], pStart[5], pStart[6], pStart[7]}
                 
                 -- dX direction
-                if ( unpackedPacket2[1] > 256) then
+                local bUpperX = 256
+                local bLowerX = 254
+                if ( unpackedPacket2[1] > bUpperX) then
+                    local stepSize = maxStep * ( (unpackedPacket2[1] - bUpperX) / bUpperX ) + minStep
                     pNext[1] = pNow[1] + stepSize
-                elseif ( unpackedPacket2[1] < 254) then
+                elseif ( unpackedPacket2[1] < bLowerX) then
+                    local stepSize = maxStep * ( (bLowerX - unpackedPacket2[1]) / bLowerX ) + minStep
                     pNext[1] = pNow[1] - stepSize
                 else
                     done[1] = true
                 end
 
                 -- dY direction
-                if ( unpackedPacket2[2] > 258) then
+                local bUpperY = 258
+                local bLowerY = 256
+                if ( unpackedPacket2[2] > bUpperY) then
+                    local stepSize = maxStep * ( (unpackedPacket2[2] - bUpperY) / bUpperY ) + minStep
                     pNext[2] = pNow[2] + stepSize
-                elseif ( unpackedPacket2[2] < 256) then
+                elseif ( unpackedPacket2[2] < bLowerY) then
+                    local stepSize = maxStep * ( (bLowerY - unpackedPacket2[2]) / bLowerY ) + minStep
                     pNext[2] = pNow[2] - stepSize
                 else
                     done[2] = true
@@ -310,9 +320,9 @@ function coroutineMain()
         actuateGripper("close") -- close gripper
 
         moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget,0,0,0.06,0,0,0,0)
-        sim.wait(3)
+        sim.wait(2)
         moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget,0,0,0.1,0,0,0,0)
-        sim.wait(3)
+        sim.wait(2)
 
         -- move to next robot
         for movestep = 1, 3 do
