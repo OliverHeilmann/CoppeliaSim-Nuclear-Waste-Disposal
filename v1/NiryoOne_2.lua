@@ -168,7 +168,7 @@ function coroutineMain()
         
         -- grab object with gripper
         sim.setIntegerSignal(gripperName.. '_close', 1) --close
-        sim.wait(5)
+        sim.wait(7)
 
         -- tell R1 that R2 has closed gripper
         sim.setIntegerSignal(simSend,1)

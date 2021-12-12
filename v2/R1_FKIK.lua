@@ -175,6 +175,12 @@ function actuateGripper(command)
     sim.wait(6) -- gripper time to open/ close
 end
 
+-- Feedback control for computer vision gripper movement
+function nextStepSize(currentPos, idealPos, minStep, maxStep)
+    local stepSize = (maxStep - minStep) * ( math.abs(currentPos - idealPos) / idealPos ) + minStep
+    return stepSize
+end
+
 ----------------------------------------------------------------------------------
 -------------------------------- MAIN SECTION BELOW ------------------------------
 ----------------------------------------------------------------------------------
@@ -256,48 +262,40 @@ function coroutineMain()
             -- get first pose of gripper target (will be used to adjust its location)
             local pStart = sim.getObjectPose(simTip,-1)
             
+            -- incrimental movement value [mm]
+            local maxStep = 0.015
+            local minStep = 0.001
+            
             -- loop through until the fuel rod is in centre of gripper
-            local done = {false, false} -- used to check if adjustments have finished
-            while (done[1] ~= true or done[2] ~= true) do
+            local posReached = {false, false} -- used to check if adjustments have finished
+            while (posReached[1] ~= true or posReached[2] ~= true) do
                 _, _, unpackedPacket1 = sim.handleVisionSensor (handle)
                 _, _, unpackedPacket2 = sim.readVisionSensor(handle)
 
-                -- now print readable data to console
-                --print(unpackedPacket2)
-
-                -- incrimental movement value [mm / step]
-                --local stepSize = 0.001
-                local maxStep = 0.01
-                local minStep = 0.001
-
                 -- get position of target now and make a new table pNext (will be updated in if statements)
-                local pNow = sim.getObjectPose(simTip,-1)
-                local pNext = {pNow[1], pNow[2], pStart[3], pStart[4], pStart[5], pStart[6], pStart[7]}
-                
-                -- dX direction
+                local poseNow = sim.getObjectPose(simTip,-1)
+                local pNext = {poseNow[1], poseNow[2], pStart[3], pStart[4], pStart[5], pStart[6], pStart[7]} -- in {x, y, z, ...}
+
+                -- dX direction (we set an upper and lower boundary to stop oscillation near minima)
                 local bUpperX = 256
                 local bLowerX = 254
                 if ( unpackedPacket2[1] > bUpperX) then
-                    local stepSize = maxStep * ( (unpackedPacket2[1] - bUpperX) / bUpperX ) + minStep
-                    pNext[1] = pNow[1] + stepSize
+                    pNext[1] = poseNow[1] + nextStepSize(unpackedPacket2[1], bUpperX, minStep, maxStep)
                 elseif ( unpackedPacket2[1] < bLowerX) then
-                    local stepSize = maxStep * ( (bLowerX - unpackedPacket2[1]) / bLowerX ) + minStep
-                    pNext[1] = pNow[1] - stepSize
+                    pNext[1] = poseNow[1] - nextStepSize(unpackedPacket2[1], bLowerX, minStep, maxStep)
                 else
-                    done[1] = true
+                    posReached[1] = true
                 end
 
-                -- dY direction
+                -- dY direction (we set an upper and lower boundary to stop oscillation near minima)
                 local bUpperY = 258
                 local bLowerY = 256
                 if ( unpackedPacket2[2] > bUpperY) then
-                    local stepSize = maxStep * ( (unpackedPacket2[2] - bUpperY) / bUpperY ) + minStep
-                    pNext[2] = pNow[2] + stepSize
+                    pNext[2] = poseNow[2] + nextStepSize(unpackedPacket2[2], bUpperY, minStep, maxStep)
                 elseif ( unpackedPacket2[2] < bLowerY) then
-                    local stepSize = maxStep * ( (bLowerY - unpackedPacket2[2]) / bLowerY ) + minStep
-                    pNext[2] = pNow[2] - stepSize
+                    pNext[2] = poseNow[2] - nextStepSize(unpackedPacket2[2], bLowerY, minStep, maxStep)
                 else
-                    done[2] = true
+                    posReached[2] = true
                 end
 
                 -- now move to the pNext location which was defined in above if statements

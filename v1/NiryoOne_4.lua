@@ -188,8 +188,18 @@ function coroutineMain()
         local pos4 = {3.0543417930603, -0.32980120182037, 0.81690573692322, 3.0544304847717, 1.9198403358459, 1.0865199565887}
         moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos4)
 
+        --[[
+        local pos5 = {3.0284399986267, -0.30664932727814, 0.32669615745544, -3.050466299057, 1.9132633209229, -1.7094929218292}
+        moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos5)
+        sim.wait(2)
+
+        local pos6 = {3.0153429508209, -0.66412746906281, 0.18000817298889, -3.0536131858826, 1.9163081645966, -1.5877950191498}
+        moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos6)
+        sim.wait(2)
+
         --local pos5 = {-1.69868683815, -0.64544856548309, 1.0028569698334, -0.099651575088501, -1.7453370094299, -0.16341280937195}
         --moveToConfig(jointHandles,maxVel,maxAccel,maxJerk,pos5)
+        ]]
 
         sim.clearIntegerSignal(gripperName.. '_close') --open
         sim.wait(4)
