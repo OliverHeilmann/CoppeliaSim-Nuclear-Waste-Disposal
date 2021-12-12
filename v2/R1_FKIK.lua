@@ -311,8 +311,8 @@ function coroutineMain()
         moveToPose_viaIK(ikMaxVel,ikMaxAccel,ikMaxJerk,poseTarget,data)
         sim.wait(wait_time)
         ]]
-
-        moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget,0,0,-0.12,0,0,0,0)
+        _, _, unpackedPacket2 = sim.readVisionSensor(handle) -- get depth of fuel rod, add offset of 0.09 m
+        moveToConfig_dXYZ(ikMaxVel_small,ikMaxAccel_small,ikMaxJerk_small,data,simTarget,0,0,-(unpackedPacket2[3]+0.09),0,0,0,0)
         sim.wait(wait_time)
 
         actuateGripper("close") -- close gripper
