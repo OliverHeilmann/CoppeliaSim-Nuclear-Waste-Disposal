@@ -1,63 +1,7 @@
 # Introduction
 This project demonstrates how four robotic arms can be used to extract nuclear fuel rods from a reactor and pass them through a series of obstacles. As well as graphically displaying torque loads on the robotic arms (a feature which a digital twin might use), the system also employs computer vision to locate and select which specific fuel rods for extraction. This repository contains all the necessary files and information to build and run the project described above.
 
-# Simulation Description
-## Design
-<p align="center">
-   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/system.png">
-   <em><br />The overall system design.</em>
-</p>
-
-<p align="center">
-   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/shutters.png">
-   <em><br />Blast doors showing a) closed position and b) open position.</em>
-</p>
-
-<p align="center">
-   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/conveyor.png">
-   <em><br />Conveyor belt used to transport fuel rod into to the dry cask.  A proximity sensordetects when a fuel rod is passes on its way to said dry cask.</em>
-</p>
-
-
-## Results
-
-<p align="center">
-   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/passrod.png">
-   <em><br />a) shows a nuclear fuel rod being passed from robot 1 to robot 2.  The camerafeed in the red box shows the footage taken from robot 2’s perspective.  b) and c) continuethe passing between robots 1 & 2 and 2 & 3.  Finally, the rod is deposited on the conveyorbelt, d).</em>
-</p>
-
-<p align="center">
-   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/joints_146.png">
-   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/joints_235.png">
-   <em><br />a)  shows  measured  joints  1,  4  and  6  on  robot  1;  maximum  torque  loads  areidentified with white arrows.  Similarly, b) shows torques for joints 2, 3 and 5.  Individualjoint loads should not be compared with one another as each joint actuator may not be thesame.  For a more in depth analysis of the impacts of each loading condition, users shouldcompare  results  with  their  respective  actuator  specifications.   Some  areas  of  interest  havebeen identified in both a) and b) for having uncharacteristically higher angular impulses totheir normal operations.</em>
-</p>
-
-<p align="center">
-   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/RodPlacementCV.png">
-   <em><br />Blast doors showing a) closed position and b) open position.</em>
-</p>
-
-<p align="center">
-   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/CollectRodCV.png">
-   <em><br /> Robot 1 successfully moves from starting location to the fuel rod.  This actioncan be seen from an isometric view, above and from the perspective of the gripper mountedvision sensor.</em>
-</p>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Description
 <p align="center">
    <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/pic1_Main.png">
 </p>
