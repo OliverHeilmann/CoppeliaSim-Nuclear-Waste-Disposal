@@ -71,7 +71,7 @@ function sysCall_init()
     uiSetup()
 
     -- setup messaging between robots
-    messageSetup()
+    messageSetup("R1")
 
     -- Get gripper name and set as global variable
     local connection=sim.getObjectHandle('NiryoOne_connection')
@@ -95,7 +95,7 @@ function sysCall_actuation()
     end
 end
 
-function messageSetup()
+function messageSetup(RobotName)
     -- Store global name of me
     myhandle = sim.getObjectHandle(sim.handle_self)
     myname = sim.getObjectName(myhandle)
@@ -109,11 +109,11 @@ function messageSetup()
     sim.setIntegerSignal(channel2,0)
 
     -- Publish my name so others can access it
-    sim.setStringSignal("R1", sim.packTable({myname}))
+    sim.setStringSignal(RobotName, sim.packTable({myname}))
     
     -- Print for debugging
-    print("R1: " .. channel1)
-    print("R1: " .. channel2)
+    print(RobotName .. ": " .. channel1)
+    print(RobotName .. ": " .. channel2)
 end
 ----------------------------------------------------------------------------------
 ------------------------------ ACTUATION SECTION BELOW ---------------------------

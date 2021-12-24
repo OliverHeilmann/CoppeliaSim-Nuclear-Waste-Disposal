@@ -1,7 +1,34 @@
 # Introduction
 This project demonstrates how four robotic arms can be used to extract nuclear fuel rods from a reactor and pass them through a series of obstacles. As well as graphically displaying torque loads on the robotic arms (a feature which a digital twin might use), the system also employs computer vision to locate and select which specific fuel rods for extraction. This repository contains all the necessary files and information to build and run the project described above.
 
-# Description
+# Simulation Description
+## Design
+<p align="center">
+   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/system.png">
+   <em>The overall system design.</em>
+</p>
+
+<p align="center">
+   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/system.png">
+   <em>Blast doors showing a) closed position and b) open position.</em>
+</p>
+
+<p align="center">
+   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/system.png">
+   <em>Conveyor belt used to transport fuel rod into to the dry cask.  A proximity sensordetects when a fuel rod is passes on its way to said dry cask.</em>
+</p>
+
+
+
+## Results
+
+<p align="center">
+   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/system.png">
+   <em>a) shows a nuclear fuel rod being passed from robot 1 to robot 2.  The camerafeed in the red box shows the footage taken from robot 2’s perspective.  b) and c) continuethe passing between robots 1 & 2 and 2 & 3.  Finally, the rod is deposited on the conveyorbelt, d).</em>
+</p>
+
+
+
 <p align="center">
    <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/pic1_Main.png">
 </p>
@@ -9,17 +36,17 @@ This project demonstrates how four robotic arms can be used to extract nuclear f
 1) Main view where the user may navigate through the environment to inspect their chosen features. The model design was influenced by a nuclear reactor; here, a cross section is presented such that all four robots can be seen simultaneously. After the final robot recieves the fuel rod, it is then placed on the conveyor belt and subsequently dropped into a hollow cylindar (representing the way that spent fuel is burried underground in lead/ concrete structures).
 2) Shows the computer vision view as seen by the first robots onboard camera. This system filters for colour, then searches for key features, determines their position in the frame and then assigns the fuel rod to be collected first (note this is always displayed in red). Using inverse kinematics, the robot arm is dynamically adjusted based on the results from the computer vision sensor until the arm is on top of the pre-selected fuel rod.
 3) A top down view of the nuclear reactor and fuel rods. Sections of the robot are intentionally ommitted from the view so as to better see the fuel rods during extraction.
-<p align="center">
-   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/pic3_R2.png">
-</p>
+   <p align="center">
+      <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/pic3_R2.png">
+   </p>
 4) Each robotic arm has an onboard camera. Users can see the frames if they wish to get a better view of the gripper and fuel rod. Note, in a real system where a user may wish to control a robotic arm, they may also wish to use the camera for sensing/ control.
-<p align="center">
-   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/pic2_R1.png">
-</p>
+   <p align="center">
+      <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/pic2_R1.png">
+   </p>
 5) Popup window is used to allow users to control some actions of the robotic arm e.g. joint angles, computer vision frame etc.
-<p align="center">
-   <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/pic4_graph.png">
-</p>
+   <p align="center">
+      <img width="750" src="https://github.com/OliverHeilmann/CoppeliaSim-Nuclear-Waste-Disposal/blob/main/pictures/pic4_graph.png">
+   </p>
 6) Joint torques are displayed on a graph to illustrate how the forces vary during operation. Note that all 6 joints (for robot 1, closes to the reactor) are displayed on the same graph to conserve space. Ideally, they would be presented on separate scales to allow users to see the joints with lower maximum torques.
 
 # Script Breakdown

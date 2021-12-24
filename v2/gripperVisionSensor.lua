@@ -54,7 +54,7 @@ function sysCall_vision(inData)
     if data[5] ~= nil and data[6] ~= nil then
         -- the lines below first convert the unpacked floating point numbers (from 0 to 1) to the
         -- corresponding pixel X and Y values. These are then parsed to the corresponding positions
-        -- in the getVisionSensorDepthBuffer() script to aquire its contituent depth values...
+        -- in the getVisionSensorDepthBuffer() script to aquire its constituent depth values...
         relativeX = math.floor(data[5]*512)
         relativeY = math.floor(data[6]*512)
         depthBuffer=sim.getVisionSensorDepthBuffer(inData.handle,relativeX,relativeY,1,1)
